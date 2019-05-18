@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 'use strict';
 
 var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture__link');
@@ -5,7 +6,7 @@ var picturesContainer = document.querySelector('.pictures');
 var bigPictureElement = document.querySelector('.big-picture');
 var socialCommentsContainer = document.querySelector('.social__comments');
 
-var COMMENTS_ARRAY =['Всё отлично!', 'В целом всё неплохо. Но не всё.', 'Когда вы делаете фотографию, хорошо бы убирать палец' +
+var COMMENTS_ARRAY = ['Всё отлично!', 'В целом всё неплохо. Но не всё.', 'Когда вы делаете фотографию, хорошо бы убирать палец' +
 'из кадра. В конце концов это просто непрофессионально.', 'Моя бабушка случайно чихнула с фотоаппаратом в руках' +
 'и у неё получилась фотография лучше.', 'Я поскользнулся на банановой кожуре и уронил фотоаппарат' +
 'на кота и у меня получилась фотография лучше.', 'Лица у людей на фотке перекошены, как будто их избивают.' +
@@ -19,26 +20,33 @@ for (var i = 0; i < 25; i++) {
 }
 
 var fragment = document.createDocumentFragment();
-for (var i = 0; i < pictures.length; i++) {
+for (i = 0; i < pictures.length; i++) {
   fragment.appendChild(renderPicture(pictures[i]));
 }
 picturesContainer.appendChild(fragment);
 
+renderBigPictureElement(pictures[0]);
 
-bigPictureElement.classList.remove('hidden');
-bigPictureElement.querySelector('.big-picture__img').querySelector('img').setAttribute('src', pictures[0].url);
-bigPictureElement.querySelector('.likes-count').textContent = '' + pictures[0].likes;
-bigPictureElement.querySelector('.comments-count').textContent = '' + pictures[0].comments.length;
 
-bigPictureElement.querySelector('.social__comment-count').classList.add('visually-hidden');
-bigPictureElement.querySelector('.social__comment-loadmore').classList.add('visually-hidden');
-bigPictureElement.querySelector('.social__caption').textContent = pictures[0].description;
+function renderBigPictureElement(obj) {
+  bigPictureElement.classList.remove('hidden');
+  bigPictureElement.querySelector('.big-picture__img').querySelector('img').setAttribute('src', obj.url);
+  bigPictureElement.querySelector('.likes-count').textContent = '' + obj.likes;
+  bigPictureElement.querySelector('.comments-count').textContent = '' + obj.comments.length;
+  bigPictureElement.querySelector('.social__caption').textContent = obj.description;
+  bigPictureElement.querySelector('.social__comment-count').classList.add('visually-hidden');
+  bigPictureElement.querySelector('.social__comment-loadmore').classList.add('visually-hidden');
 
-while(socialCommentsContainer.firstChild) {
-  socialCommentsContainer.removeChild(socialCommentsContainer.firstChild);
+  while (socialCommentsContainer.firstChild) {
+    socialCommentsContainer.removeChild(socialCommentsContainer.firstChild);
+  }
+  for (var i = 0; i < obj.comments.length; i++) {
+    fragment.appendChild(renderComment(obj, i));
+  }
+  socialCommentsContainer.appendChild(fragment);
 }
 
-for (var i = 0; i < pictures[0].comments.length; i++) {
+function renderComment(obj, i) {
   var liElement = document.createElement('li');
   var imgElement = document.createElement('img');
   var pElement = document.createElement('p');
@@ -46,18 +54,18 @@ for (var i = 0; i < pictures[0].comments.length; i++) {
   liElement.classList.add('social__comment--text');
   liElement.classList.add('social__comment');
   imgElement.classList.add('social__picture');
-  imgElement.setAttribute('src', 'img/avatar-' + randomSelect(2,6) + '.svg');
-  imgElement.setAttribute('alt','Аватар комментатора фотографии');
-  imgElement.setAttribute('width','35');
-  imgElement.setAttribute('height','35');
+  imgElement.setAttribute('src', 'img/avatar-' + randomSelect(2, 6) + '.svg');
+  imgElement.setAttribute('alt', 'Аватар комментатора фотографии');
+  imgElement.setAttribute('width', '35');
+  imgElement.setAttribute('height', '35');
   pElement.classList.add('social__text');
-  pElement.textContent = pictures[0].comments[i];
+  pElement.textContent = obj.comments[i];
 
   liElement.appendChild(imgElement);
   liElement.appendChild(pElement);
-  socialCommentsContainer.appendChild(liElement);
-}
 
+  return liElement;
+}
 
 function randomSelect(min, max) {
   return Math.floor(min + (Math.random() * (max - min + 1)));
@@ -65,13 +73,14 @@ function randomSelect(min, max) {
 
 function generatePicture() {
   var obj = {};
-  obj.url = `photos/${pictures.length + 1}.jpg`;
+  var photoNum = pictures.length + 1;
+  obj.url = 'photos/' + photoNum + '.jpg';
   obj.likes = randomSelect(15, 200);
-  obj.description = DESCRIPTIONS_ARRAY[randomSelect(0,DESCRIPTIONS_ARRAY.length - 1)];
+  obj.description = DESCRIPTIONS_ARRAY[randomSelect(0, DESCRIPTIONS_ARRAY.length - 1)];
   obj.comments = [];
-  var commentsCount = randomSelect(1,3);
+  var commentsCount = randomSelect(1, 3);
   for (var i = 0; i < commentsCount; i++) {
-    obj.comments.push(COMMENTS_ARRAY[randomSelect(0,COMMENTS_ARRAY.length - 1)])
+    obj.comments.push(COMMENTS_ARRAY[randomSelect(0, COMMENTS_ARRAY.length - 1)]);
   }
   return obj;
 }
