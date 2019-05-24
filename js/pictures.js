@@ -5,13 +5,14 @@ var pictureTemplate = document.querySelector('#picture').content.querySelector('
 var picturesContainer = document.querySelector('.pictures');
 var bigPictureElement = document.querySelector('.big-picture');
 var socialCommentsContainer = document.querySelector('.social__comments');
+var fragment = document.createDocumentFragment();
 
-var COMMENTS_ARRAY = ['Всё отлично!', 'В целом всё неплохо. Но не всё.', 'Когда вы делаете фотографию, хорошо бы убирать палец' +
-'из кадра. В конце концов это просто непрофессионально.', 'Моя бабушка случайно чихнула с фотоаппаратом в руках' +
-'и у неё получилась фотография лучше.', 'Я поскользнулся на банановой кожуре и уронил фотоаппарат' +
-'на кота и у меня получилась фотография лучше.', 'Лица у людей на фотке перекошены, как будто их избивают.' +
+var COMMENTS_ARRAY = ['Всё отлично!', 'В целом всё неплохо. Но не всё.', 'Когда вы делаете фотографию, хорошо бы убирать палец ' +
+'из кадра. В конце концов это просто непрофессионально.', 'Моя бабушка случайно чихнула с фотоаппаратом в руках ' +
+'и у неё получилась фотография лучше.', 'Я поскользнулся на банановой кожуре и уронил фотоаппарат ' +
+'на кота и у меня получилась фотография лучше.', 'Лица у людей на фотке перекошены, как будто их избивают. ' +
 'Как можно было поймать такой неудачный момент?!'];
-var DESCRIPTIONS_ARRAY = ['Тестим новую камеру!', 'Затусили с друзьями на море', 'Как же круто тут кормят', 'Отдыхаем...', 'Цените каждое мгновенье. Цените тех, кто рядом с вами' +
+var DESCRIPTIONS_ARRAY = ['Тестим новую камеру!', 'Затусили с друзьями на море', 'Как же круто тут кормят', 'Отдыхаем...', 'Цените каждое мгновенье. Цените тех, кто рядом с вами ' +
 'и отгоняйте все сомненья. Не обижайте всех словами......', 'Вот это тачка!'];
 var pictures = [];
 
@@ -19,17 +20,16 @@ for (var i = 0; i < 25; i++) {
   pictures.push(generatePicture());
 }
 
-var fragment = document.createDocumentFragment();
 for (i = 0; i < pictures.length; i++) {
   fragment.appendChild(renderPicture(pictures[i]));
 }
 picturesContainer.appendChild(fragment);
 
-renderBigPictureElement(pictures[0]);
+bigPictureElement.classList.remove('hidden');
+renderBigPictureElement(pictures[3]);
 
 
 function renderBigPictureElement(obj) {
-  bigPictureElement.classList.remove('hidden');
   bigPictureElement.querySelector('.big-picture__img').querySelector('img').setAttribute('src', obj.url);
   bigPictureElement.querySelector('.likes-count').textContent = '' + obj.likes;
   bigPictureElement.querySelector('.comments-count').textContent = '' + obj.comments.length;
