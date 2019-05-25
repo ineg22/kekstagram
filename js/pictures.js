@@ -7,6 +7,8 @@ var bigPictureElement = document.querySelector('.big-picture');
 var socialCommentsContainer = document.querySelector('.social__comments');
 var fragment = document.createDocumentFragment();
 
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
 var COMMENTS_ARRAY = ['Всё отлично!', 'В целом всё неплохо. Но не всё.', 'Когда вы делаете фотографию, хорошо бы убирать палец ' +
 'из кадра. В конце концов это просто непрофессионально.', 'Моя бабушка случайно чихнула с фотоаппаратом в руках ' +
 'и у неё получилась фотография лучше.', 'Я поскользнулся на банановой кожуре и уронил фотоаппарат ' +
@@ -14,8 +16,8 @@ var COMMENTS_ARRAY = ['Всё отлично!', 'В целом всё непло
 'Как можно было поймать такой неудачный момент?!'];
 var DESCRIPTIONS_ARRAY = ['Тестим новую камеру!', 'Затусили с друзьями на море', 'Как же круто тут кормят', 'Отдыхаем...', 'Цените каждое мгновенье. Цените тех, кто рядом с вами ' +
 'и отгоняйте все сомненья. Не обижайте всех словами......', 'Вот это тачка!'];
-var pictures = [];
 
+var pictures = [];
 for (var i = 0; i < 25; i++) {
   pictures.push(generatePicture());
 }
@@ -24,10 +26,6 @@ for (i = 0; i < pictures.length; i++) {
   fragment.appendChild(renderPicture(pictures[i]));
 }
 picturesContainer.appendChild(fragment);
-
-bigPictureElement.classList.remove('hidden');
-renderBigPictureElement(pictures[3]);
-
 
 function renderBigPictureElement(obj) {
   bigPictureElement.querySelector('.big-picture__img').querySelector('img').setAttribute('src', obj.url);
@@ -73,8 +71,9 @@ function randomSelect(min, max) {
 
 function generatePicture() {
   var obj = {};
-  var photoNum = pictures.length + 1;
-  obj.url = 'photos/' + photoNum + '.jpg';
+  var photoId = pictures.length + 1;
+  obj.id = photoId;
+  obj.url = 'photos/' + photoId + '.jpg';
   obj.likes = randomSelect(15, 200);
   obj.description = DESCRIPTIONS_ARRAY[randomSelect(0, DESCRIPTIONS_ARRAY.length - 1)];
   obj.comments = [];
@@ -90,5 +89,39 @@ function renderPicture(obj) {
   pictureElement.querySelector('.picture__img').setAttribute('src', obj.url);
   pictureElement.querySelector('.picture__stat--likes').textContent = '' + obj.likes;
   pictureElement.querySelector('.picture__stat--comments').textContent = '' + obj.comments.length;
+  pictureElement.querySelector('img').setAttribute('id', obj.id);
   return pictureElement;
 }
+
+function bigPictureOpen(id) {
+  renderBigPictureElement(pictures[id - 1]);
+  document.addEventListener('keydown', onBigPictureEscPress);
+  bigPictureElement.classList.remove('hidden');
+}
+
+function bigPictureClose() {
+  bigPictureElement.classList.add('hidden');
+  document.removeEventListener('keydown', onBigPictureEscPress);
+}
+
+function onBigPictureEscPress(evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    bigPictureClose();
+  }
+}
+
+picturesContainer.addEventListener('click', function (evt) {
+  bigPictureOpen(evt.target.id);
+});
+picturesContainer.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    bigPictureOpen(evt.target.id);
+  }
+});
+
+bigPictureElement.querySelector('#picture-cancel').addEventListener('click', bigPictureClose);
+bigPictureElement.querySelector('#picture-cancel').addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    bigPictureClose();
+  }
+});
