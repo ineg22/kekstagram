@@ -114,3 +114,5 @@ picturesContainer.addEventListener('click', function (evt) {
 });
 
 bigPictureElement.querySelector('#picture-cancel').addEventListener('click', bigPictureClose);
+
+document.querySelector('.img-filters').classList.remove('img-filters--inactive');
