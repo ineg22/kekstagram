@@ -1,4 +1,3 @@
-/* eslint-disable no-shadow */
 'use strict';
 
 var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture__link');
@@ -8,7 +7,6 @@ var socialCommentsContainer = document.querySelector('.social__comments');
 var fragment = document.createDocumentFragment();
 
 var ESC_KEYCODE = 27;
-var ENTER_KEYCODE = 13;
 var COMMENTS_ARRAY = ['Всё отлично!', 'В целом всё неплохо. Но не всё.', 'Когда вы делаете фотографию, хорошо бы убирать палец ' +
 'из кадра. В конце концов это просто непрофессионально.', 'Моя бабушка случайно чихнула с фотоаппаратом в руках ' +
 'и у неё получилась фотография лучше.', 'Я поскользнулся на банановой кожуре и уронил фотоаппарат ' +
@@ -93,6 +91,7 @@ function renderPicture(obj) {
   return pictureElement;
 }
 
+// ---------------------------------------------  task_4
 function bigPictureOpen(id) {
   renderBigPictureElement(pictures[id - 1]);
   document.addEventListener('keydown', onBigPictureEscPress);
@@ -113,15 +112,5 @@ function onBigPictureEscPress(evt) {
 picturesContainer.addEventListener('click', function (evt) {
   bigPictureOpen(evt.target.id);
 });
-picturesContainer.addEventListener('keydown', function (evt) {
-  if (evt.keyCode === ENTER_KEYCODE) {
-    bigPictureOpen(evt.target.id);
-  }
-});
 
 bigPictureElement.querySelector('#picture-cancel').addEventListener('click', bigPictureClose);
-bigPictureElement.querySelector('#picture-cancel').addEventListener('keydown', function (evt) {
-  if (evt.keyCode === ENTER_KEYCODE) {
-    bigPictureClose();
-  }
-});
