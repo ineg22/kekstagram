@@ -4,6 +4,8 @@ var pictureTemplate = document.querySelector('#picture').content.querySelector('
 var picturesContainer = document.querySelector('.pictures');
 var bigPictureElement = document.querySelector('.big-picture');
 var socialCommentsContainer = document.querySelector('.social__comments');
+var inputUploadFile = picturesContainer.querySelector('.img-upload__input');
+var imgUploadOverlayContainer = picturesContainer.querySelector('.img-upload__overlay');
 var fragment = document.createDocumentFragment();
 
 var ESC_KEYCODE = 27;
@@ -91,7 +93,7 @@ function renderPicture(obj) {
   return pictureElement;
 }
 
-// ---------------------------------------------  task_4
+// ---------------------------------------------  task 4
 function bigPictureOpen(id) {
   renderBigPictureElement(pictures[id - 1]);
   document.addEventListener('keydown', onBigPictureEscPress);
@@ -110,9 +112,31 @@ function onBigPictureEscPress(evt) {
 }
 
 picturesContainer.addEventListener('click', function (evt) {
-  bigPictureOpen(evt.target.id);
+  if (evt.target.id && evt.target.tagName === 'IMG') {
+    bigPictureOpen(evt.target.id);
+  }
 });
 
 bigPictureElement.querySelector('#picture-cancel').addEventListener('click', bigPictureClose);
+
+function imgUploadOverlayOpen() {
+  imgUploadOverlayContainer.classList.remove('hidden');
+  document.addEventListener('keydown', onImgUploadOverlayEscPress);
+}
+
+function imgUploadOverlayClose() {
+  imgUploadOverlayContainer.classList.add('hidden');
+  document.removeEventListener('keydown', onImgUploadOverlayEscPress);
+  inputUploadFile.value = '';
+}
+
+function onImgUploadOverlayEscPress(evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    imgUploadOverlayClose();
+  }
+}
+
+imgUploadOverlayContainer.querySelector('.img-upload__cancel').addEventListener('click', imgUploadOverlayClose);
+inputUploadFile.addEventListener('change', imgUploadOverlayOpen);
 
 document.querySelector('.img-filters').classList.remove('img-filters--inactive');
