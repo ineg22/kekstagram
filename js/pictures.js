@@ -6,6 +6,8 @@ var bigPictureElement = document.querySelector('.big-picture');
 var socialCommentsContainer = document.querySelector('.social__comments');
 var inputUploadFile = picturesContainer.querySelector('.img-upload__input');
 var imgUploadOverlayContainer = picturesContainer.querySelector('.img-upload__overlay');
+var imgUploadEffectsContainer = picturesContainer.querySelector('.img-upload__effects');
+// var imgUploadTextContainer = picturesContainer.querySelector('.img-upload__text');
 var fragment = document.createDocumentFragment();
 
 var ESC_KEYCODE = 27;
@@ -138,5 +140,16 @@ function onImgUploadOverlayEscPress(evt) {
 
 imgUploadOverlayContainer.querySelector('.img-upload__cancel').addEventListener('click', imgUploadOverlayClose);
 inputUploadFile.addEventListener('change', imgUploadOverlayOpen);
+
+function onRadioEffectClick(evt) {
+  var removedCls = imgUploadOverlayContainer.querySelector('.img-upload__preview').classList[1];
+  imgUploadOverlayContainer.querySelector('.img-upload__preview').classList.remove(removedCls);
+  var cls = evt.target.nextElementSibling.firstElementChild.classList[1];
+  imgUploadOverlayContainer.querySelector('.img-upload__preview').classList.add(cls);
+}
+
+for (i = 0; i < 6; i++) {
+  imgUploadEffectsContainer.querySelectorAll('.effects__item')[i].addEventListener('change', onRadioEffectClick);
+}
 
 document.querySelector('.img-filters').classList.remove('img-filters--inactive');
