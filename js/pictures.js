@@ -4,11 +4,6 @@ var pictureTemplate = document.querySelector('#picture').content.querySelector('
 var picturesContainer = document.querySelector('.pictures');
 var bigPictureElement = document.querySelector('.big-picture');
 var socialCommentsContainer = document.querySelector('.social__comments');
-var inputUploadFile = picturesContainer.querySelector('.img-upload__input');
-var imgUploadOverlayContainer = picturesContainer.querySelector('.img-upload__overlay');
-var imgUploadPreviewElement = imgUploadOverlayContainer.querySelector('.img-upload__preview');
-var imgUploadEffectsContainer = picturesContainer.querySelector('.img-upload__effects');
-// var imgUploadTextContainer = picturesContainer.querySelector('.img-upload__text');
 var fragment = document.createDocumentFragment();
 
 var ESC_KEYCODE = 27;
@@ -114,16 +109,42 @@ function onBigPictureEscPress(evt) {
   }
 }
 
-picturesContainer.addEventListener('click', function (evt) {
-  if (evt.target.id && evt.target.tagName === 'IMG') {
-    bigPictureOpen(evt.target.id);
-  }
-});
+var picturesElements = picturesContainer.querySelectorAll('.picture__link');
+for (i = 0; i < picturesElements.length; i++) {
+  picturesElements[i].addEventListener('click', function (evt) {
+    if (evt.target.id && evt.target.tagName === 'IMG') {
+      bigPictureOpen(evt.target.id);
+    }
+  });
+}
 
 bigPictureElement.querySelector('#picture-cancel').addEventListener('click', bigPictureClose);
 
+var inputUploadFile = picturesContainer.querySelector('.img-upload__input');
+var imgUploadOverlayContainer = picturesContainer.querySelector('.img-upload__overlay');
+var imgUploadPreviewElement = imgUploadOverlayContainer.querySelector('.img-upload__preview');
+var imgUploadEffectsContainer = picturesContainer.querySelector('.img-upload__effects');
+
+function previewFile() {
+  var preview = imgUploadPreviewElement.querySelector('img');
+  var file = inputUploadFile.files[0];
+  var reader = new FileReader();
+
+  reader.onloadend = function () {
+    preview.src = reader.result;
+  };
+
+  if (file) {
+    reader.readAsDataURL(file);
+  } else {
+    preview.src = '';
+  }
+}
+
 function imgUploadOverlayOpen() {
   imgUploadOverlayContainer.classList.remove('hidden');
+  setEffectLevel(20);
+  previewFile();
   document.addEventListener('keydown', onImgUploadOverlayEscPress);
 }
 
@@ -144,7 +165,7 @@ function onImgUploadOverlayEscPress(evt) {
 imgUploadOverlayContainer.querySelector('.img-upload__cancel').addEventListener('click', imgUploadOverlayClose);
 inputUploadFile.addEventListener('change', imgUploadOverlayOpen);
 
-function switchFilter() {
+function onSwitchFilter() {
   setEffectLevel(20);
   // var removedCls = imgUploadOverlayContainer.querySelector('.img-upload__preview').classList[1];
   // imgUploadPreviewElement.classList.remove(removedCls);
@@ -153,7 +174,7 @@ function switchFilter() {
 }
 
 for (i = 0; i < 6; i++) {
-  imgUploadEffectsContainer.querySelectorAll('.effects__item')[i].addEventListener('change', switchFilter);
+  imgUploadEffectsContainer.querySelectorAll('.effects__item')[i].addEventListener('change', onSwitchFilter);
 }
 
 function onScalePinMouseup(evt) {
@@ -167,6 +188,12 @@ function setEffectLevel(level) {
   imgUploadOverlayContainer.querySelector('.scale__pin').style.left = (level + '%');
   imgUploadOverlayContainer.querySelector('.scale__level').style.width = (level + '%');
   imgUploadOverlayContainer.querySelector('.scale__value').value = level;
+
+  if (effects[0].firstElementChild.checked) {
+    imgUploadOverlayContainer.querySelector('.img-upload__scale').classList.add('hidden');
+  } else {
+    imgUploadOverlayContainer.querySelector('.img-upload__scale').classList.remove('hidden');
+  }
 
   for (i = 0; i < 6; i++) {
     if (effects[i].firstElementChild.checked) {
@@ -196,5 +223,78 @@ function setEffectLevel(level) {
 }
 
 imgUploadOverlayContainer.querySelector('.scale__line').addEventListener('mouseup', onScalePinMouseup);
+
+// ----------------------------------- task 4 + tags
+var hashTagsElement = imgUploadOverlayContainer.querySelector('.text__hashtags');
+var imgUploadDescriptionElement = imgUploadOverlayContainer.querySelector('.text__description');
+
+hashTagsElement.addEventListener('focus', function () {
+  document.removeEventListener('keydown', onImgUploadOverlayEscPress);
+});
+imgUploadDescriptionElement.addEventListener('focus', function () {
+  document.removeEventListener('keydown', onImgUploadOverlayEscPress);
+});
+hashTagsElement.addEventListener('blur', function () {
+  document.addEventListener('keydown', onImgUploadOverlayEscPress);
+});
+imgUploadDescriptionElement.addEventListener('blur', function () {
+  document.addEventListener('keydown', onImgUploadOverlayEscPress);
+});
+
+function isInvalid(str) {
+  if (str === '') {
+    return false;
+  }
+  str = str.toLowerCase();
+  var tags = str.split(' ');
+
+  for (i = 0; i < tags.length; i++) {
+    if (tags[i] === '') {
+      return ('too much spaces between tags');
+    }
+
+    if (tags[i].charAt(0) !== '#') {
+      return (tags[i].charAt(0) + ' does not start with #');
+    }
+
+    if (tags[i].length === 1) {
+      return ('must be at least 1 char after #');
+    }
+
+    for (var j = i + 1; j < tags.length; j++) {
+      if (tags[i] === tags[j]) {
+        return (tags[i] + ' tag is repeated');
+      }
+    }
+
+    if (tags[i].length > 20) {
+      return ('max length of tag must be less than 20 char');
+    }
+  }
+
+  if (tags.length > 5) {
+    return ('you cant use more than 5 tags');
+  }
+
+  return false;
+}
+function onSubmitClick() {
+  var text = hashTagsElement.value;
+  var invalidState = isInvalid(text);
+
+  if (invalidState) {
+    hashTagsElement.style = 'border-color: red; border-width: 3px;';
+    hashTagsElement.setCustomValidity(invalidState);
+    // evt.preventDefault();
+    // console.log(hashTagsElement.validity);
+  } else {
+    hashTagsElement.style = 'border-color: initial; border-width: 2px;';
+    hashTagsElement.setCustomValidity('');
+    // console.log(hashTagsElement.validity);
+    // picturesContainer.querySelector('.img-upload__form').submit();
+  }
+}
+
+picturesContainer.querySelector('.img-upload__submit').addEventListener('click', onSubmitClick);
 
 document.querySelector('.img-filters').classList.remove('img-filters--inactive');
