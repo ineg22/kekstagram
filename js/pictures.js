@@ -109,13 +109,15 @@ function onBigPictureEscPress(evt) {
   }
 }
 
+function onPicturesElementsClick(evt) {
+  if (evt.target.id && evt.target.tagName === 'IMG') {
+    bigPictureOpen(evt.target.id);
+  }
+}
+
 var picturesElements = picturesContainer.querySelectorAll('.picture__link');
 for (i = 0; i < picturesElements.length; i++) {
-  picturesElements[i].addEventListener('click', function (evt) {
-    if (evt.target.id && evt.target.tagName === 'IMG') {
-      bigPictureOpen(evt.target.id);
-    }
-  });
+  picturesElements[i].addEventListener('click', onPicturesElementsClick);
 }
 
 bigPictureElement.querySelector('#picture-cancel').addEventListener('click', bigPictureClose);
@@ -165,34 +167,32 @@ function onImgUploadOverlayEscPress(evt) {
 imgUploadOverlayContainer.querySelector('.img-upload__cancel').addEventListener('click', imgUploadOverlayClose);
 inputUploadFile.addEventListener('change', imgUploadOverlayOpen);
 
+// ----------------------work with filters / task_5
+var scaleContainer = imgUploadOverlayContainer.querySelector('.img-upload__scale');
+var scaleLine = scaleContainer.querySelector('.scale__line');
+var scalePin = scaleContainer.querySelector('.scale__pin');
+var effectLevel = 20;
+
 function onSwitchFilter() {
-  setEffectLevel(20);
-  // var removedCls = imgUploadOverlayContainer.querySelector('.img-upload__preview').classList[1];
-  // imgUploadPreviewElement.classList.remove(removedCls);
-  // var cls = evt.target.nextElementSibling.firstElementChild.classList[1];
-  // imgUploadPreviewElement.classList.add(cls);
+  effectLevel = 20;
+  setEffectLevel(effectLevel);
 }
 
 for (i = 0; i < 6; i++) {
   imgUploadEffectsContainer.querySelectorAll('.effects__item')[i].addEventListener('change', onSwitchFilter);
 }
 
-function onScalePinMouseup(evt) {
-  var level = Math.round(evt.offsetX / 4.55);
-  setEffectLevel(level);
-}
-
 function setEffectLevel(level) {
   var pxlevel = 0.03 * level;
   var effects = imgUploadEffectsContainer.querySelectorAll('.effects__item');
-  imgUploadOverlayContainer.querySelector('.scale__pin').style.left = (level + '%');
-  imgUploadOverlayContainer.querySelector('.scale__level').style.width = (level + '%');
-  imgUploadOverlayContainer.querySelector('.scale__value').value = level;
+  scalePin.style.left = (level + '%');
+  scaleContainer.querySelector('.scale__level').style.width = (level + '%');
+  scaleContainer.querySelector('.scale__value').value = level;
 
   if (effects[0].firstElementChild.checked) {
-    imgUploadOverlayContainer.querySelector('.img-upload__scale').classList.add('hidden');
+    scaleContainer.classList.add('hidden');
   } else {
-    imgUploadOverlayContainer.querySelector('.img-upload__scale').classList.remove('hidden');
+    scaleContainer.classList.remove('hidden');
   }
 
   for (i = 0; i < 6; i++) {
@@ -222,7 +222,49 @@ function setEffectLevel(level) {
   }
 }
 
-imgUploadOverlayContainer.querySelector('.scale__line').addEventListener('mouseup', onScalePinMouseup);
+function onScaleMousedown(downEvt) {
+  downEvt.preventDefault();
+  var x = downEvt.clientX;
+  var shiftLevel = 0;
+  var zeroPoint = (document.querySelector('body').clientWidth - scaleLine.clientWidth) / 2;
+  var maxPoint = zeroPoint + scaleLine.clientWidth;
+
+  if (downEvt.target !== scalePin) {
+    effectLevel = Math.round((x - zeroPoint) / 4.53) + 2;
+    setEffectLevel(effectLevel);
+  }
+
+  function onScaleMove(moveEvt) {
+    moveEvt.preventDefault();
+    shiftLevel = Math.round((x - moveEvt.clientX) / 4.53);
+
+    if (moveEvt.clientX < zeroPoint) {
+      setEffectLevel(0);
+    } else if (moveEvt.clientX > maxPoint) {
+      setEffectLevel(100);
+    } else {
+      setEffectLevel(effectLevel - shiftLevel);
+    }
+  }
+
+  function onScaleMouseup(upEvt) {
+    upEvt.preventDefault();
+    effectLevel = effectLevel - shiftLevel;
+    if (effectLevel < 0) {
+      effectLevel = 0;
+    } else if (effectLevel > 100) {
+      effectLevel = 100;
+    }
+
+    document.removeEventListener('mousemove', onScaleMove);
+    document.removeEventListener('mouseup', onScaleMouseup);
+  }
+
+  document.addEventListener('mousemove', onScaleMove);
+  document.addEventListener('mouseup', onScaleMouseup);
+}
+
+scaleLine.addEventListener('mousedown', onScaleMousedown);
 
 // ----------------------------------- task 4 + tags
 var hashTagsElement = imgUploadOverlayContainer.querySelector('.text__hashtags');
